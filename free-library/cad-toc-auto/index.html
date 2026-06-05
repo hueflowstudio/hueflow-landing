@@ -76,6 +76,7 @@
       <p>지정한 폼 세팅은 현재 DWG 안에 저장되므로, DWG를 저장하면 다른 PC에서도 같은 기준으로 다시 사용할 수 있습니다.</p>
       <p>기존 도면을 속성 블록으로 바꾸지 않아도 일반 TEXT/MTEXT 값을 이용할 수 있습니다.</p>
       <a class="download" href="./cad_toc_auto.lsp" download>cad_toc_auto.lsp 다운로드</a>
+      <a class="download" href="./cad_toc_auto_2014.lsp" download>2014 호환판 다운로드</a>
       <a class="download" href="./Hueflow_CAD_TOC_Automation.zip" download>전체 패키지 다운로드</a>
     </section>
 
@@ -126,6 +127,17 @@ TCFG = 설정값 조정</code></pre>
         <li>같은 이름의 시트폼 블록을 반복 사용</li>
         <li>도면번호, 도면명, 축척이 폼 안의 일정한 칸에 위치</li>
         <li>표지나 예외 폼은 수동 보정</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>AutoCAD 2014에서 안 될 때</h2>
+      <ul>
+        <li>AutoCAD LT 2014는 AutoLISP를 지원하지 않을 수 있습니다. 일반 AutoCAD 2014인지 확인합니다.</li>
+        <li>ZIP 안에서 바로 불러오지 말고 압축을 풀어 cad_toc_auto_2014.lsp 또는 cad_toc_auto.lsp를 APPLOAD 합니다.</li>
+        <li>APPLOAD 후 Loaded cad_toc_auto.lsp 문구가 떠야 정상입니다.</li>
+        <li>보안 경고가 뜨면 SECURELOAD 값을 0으로 바꾼 뒤 다시 APPLOAD 합니다.</li>
+        <li>TSET/TLIST가 Unknown command로 나오면 로드가 실패한 것이므로 APPLOAD부터 다시 확인합니다.</li>
       </ul>
     </section>
   </main>
