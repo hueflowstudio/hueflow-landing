@@ -31,6 +31,7 @@
   (if (null *toc-output-mode*) (setq *toc-output-mode* "Table"))
   (if (null *toc-paper-prefix*) (setq *toc-paper-prefix* "A3 : "))
   (if (null *toc-auto-format-scale*) (setq *toc-auto-format-scale* T))
+  (if (null *toc-form-config-key*) (setq *toc-form-config-key* "HUEFLOW_TOC_FORM_CONFIG"))
   (princ)
 )
 
@@ -365,6 +366,102 @@
     (princ (strcat "\nForm block       : " *toc-form-block-name*))
   )
   (princ)
+)
+
+(defun toc:join-strings (lst / out)
+  (setq out "")
+  (foreach s lst
+    (if s (setq out (strcat out s)))
+  )
+  out
+)
+
+(defun toc:chunk-string (s n / out start len)
+  (setq out '())
+  (setq start 1)
+  (setq len (strlen s))
+  (while (<= start len)
+    (setq out (cons (substr s start n) out))
+    (setq start (+ start n))
+  )
+  (reverse out)
+)
+
+(defun toc:form-calibrated-p ()
+  (and
+    *toc-form-block-name*
+    (toc:form-field-box "SHEET")
+    (toc:form-field-box "DWG")
+    (toc:form-field-box "TITLE")
+    (toc:form-field-box "SCALE")
+  )
+)
+
+(defun toc:save-form-config (/ nod old payload chunks xrec data)
+  (toc:init-config)
+  (if (toc:form-calibrated-p)
+    (progn
+      (setq payload
+        (vl-prin1-to-string
+          (list
+            (cons "VERSION" 1)
+            (cons "BLOCK" *toc-form-block-name*)
+            (cons "FIELDS" *toc-form-fields*)
+          )
+        )
+      )
+      (setq chunks (toc:chunk-string payload 240))
+      (setq data
+        (append
+          '((0 . "XRECORD") (100 . "AcDbXrecord") (280 . 1))
+          (mapcar '(lambda (s) (cons 1 s)) chunks)
+        )
+      )
+      (setq nod (namedobjdict))
+      (if (dictsearch nod *toc-form-config-key*)
+        (dictremove nod *toc-form-config-key*)
+      )
+      (setq xrec (entmakex data))
+      (if xrec
+        (progn
+          (dictadd nod *toc-form-config-key* xrec)
+          T
+        )
+        nil
+      )
+    )
+  )
+)
+
+(defun toc:load-form-config (/ rec chunks payload parsed block fields)
+  (toc:init-config)
+  (setq rec (dictsearch (namedobjdict) *toc-form-config-key*))
+  (if rec
+    (progn
+      (setq chunks
+        (mapcar
+          'cdr
+          (vl-remove-if-not '(lambda (x) (= (car x) 1)) rec)
+        )
+      )
+      (setq payload (toc:join-strings chunks))
+      (setq parsed (vl-catch-all-apply 'read (list payload)))
+      (if (vl-catch-all-error-p parsed)
+        nil
+        (progn
+          (setq block (cdr (assoc "BLOCK" parsed)))
+          (setq fields (cdr (assoc "FIELDS" parsed)))
+          (if (and block fields)
+            (progn
+              (setq *toc-form-block-name* block)
+              (setq *toc-form-fields* fields)
+              (toc:form-calibrated-p)
+            )
+          )
+        )
+      )
+    )
+  )
 )
 
 (defun toc:nearest-sheet (dwg items radius / best bestd d)
@@ -1219,13 +1316,10 @@
 )
 
 (defun toc:form-ready-p ()
-  (and
-    *toc-form-block-name*
-    (toc:form-field-box "SHEET")
-    (toc:form-field-box "DWG")
-    (toc:form-field-box "TITLE")
-    (toc:form-field-box "SCALE")
+  (if (not (toc:form-calibrated-p))
+    (toc:load-form-config)
   )
+  (toc:form-calibrated-p)
 )
 
 (defun c:TOCAUTO (/ ss items)
@@ -1357,7 +1451,10 @@
                   (cons "SCALE" scale)
                 )
               )
-              (princ "\nTOCFORMSET complete. Run TOCFORMSCAN.")
+              (if (toc:save-form-config)
+                (princ "\nTOCFORMSET complete. Calibration saved in this DWG. Save the DWG, then other PCs can use TOCFORMSCAN.")
+                (princ "\nTOCFORMSET complete. Run TOCFORMSCAN. Warning: DWG calibration save failed.")
+              )
             )
             (princ "\nTOCFORMSET canceled or incomplete.")
           )
@@ -1366,6 +1463,20 @@
       )
     )
     (princ "\nNothing selected.")
+  )
+  (princ)
+)
+
+(defun c:TOCFORMSTATUS ()
+  (vl-load-com)
+  (toc:init-config)
+  (if (toc:form-ready-p)
+    (progn
+      (princ "\nTOCFORM calibration is ready.")
+      (princ (strcat "\nForm block: " *toc-form-block-name*))
+      (princ "\nSaved fields: SHEET, DWG, TITLE, SCALE")
+    )
+    (princ "\nNo TOCFORM calibration found in memory or in this DWG. Run TOCFORMSET first.")
   )
   (princ)
 )
@@ -1455,5 +1566,5 @@
   (princ)
 )
 
-(princ "\nLoaded cad_toc_auto.lsp. Commands: TOCFORMSET, TOCFORMSCAN, TOCSEMI, TOCSEMIALL, TOCCFG, TOCAUTO, TOCAUTOALL, TOCTABLESCAN, TOCNEARSCAN")
+(princ "\nLoaded cad_toc_auto.lsp. Commands: TOCFORMSET, TOCFORMSTATUS, TOCFORMSCAN, TOCSEMI, TOCSEMIALL, TOCCFG, TOCAUTO, TOCAUTOALL, TOCTABLESCAN, TOCNEARSCAN")
 (princ)

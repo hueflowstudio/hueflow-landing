@@ -10,6 +10,7 @@ AutoCAD에서 반복되는 시트폼 블록을 기준으로 도면 리스트를 
 APPLOAD로 cad_toc_auto.lsp 불러오기
 → TOCFORMSET으로 기준 폼 1개 선택
 → 번호/제목/스케일 위치 지정
+→ DWG 저장
 → TOCFORMSCAN 실행
 → 도면 리스트 자동 생성
 ```
@@ -22,14 +23,19 @@ APPLOAD로 cad_toc_auto.lsp 불러오기
 3. 명령어 TOCFORMSET 입력
 4. 기준이 되는 시트폼/도곽 블록 1개 선택
 5. 화면 안내에 따라 SHEET NO, 도면번호, 도면제목, SCALE 위치를 각각 지정
-6. 명령어 TOCFORMSCAN 입력
-7. 도면 안의 같은 시트폼들을 자동으로 읽어서 도면 리스트 생성
+6. DWG 저장
+7. 명령어 TOCFORMSCAN 입력
+8. 도면 안의 같은 시트폼들을 자동으로 읽어서 도면 리스트 생성
 
 주요 명령어
 
 TOCFORMSET
 - 기준 시트폼을 등록하는 명령어
-- 한 번만 세팅하면 같은 폼의 도면번호, 제목, 스케일 위치를 기억함
+- 한 번만 세팅하면 같은 폼의 도면번호, 제목, 스케일 위치를 DWG 안에 저장함
+
+TOCFORMSTATUS
+- 현재 도면에 저장된 폼 세팅이 있는지 확인하는 명령어
+- 데스크탑/다른 PC에서 안 될 때 먼저 확인하면 좋음
 
 TOCFORMSCAN
 - 등록된 시트폼을 기준으로 전체 도면 리스트를 자동 생성하는 명령어
@@ -42,6 +48,7 @@ TOCCFG
 
 APPLOAD → cad_toc_auto.lsp 불러오기
 → TOCFORMSET으로 기준 폼 1개 세팅
+→ DWG 저장
 → TOCFORMSCAN으로 전체 리스트 생성
 → 빠진 항목이나 상세도는 수동 보정
 
@@ -49,6 +56,7 @@ APPLOAD → cad_toc_auto.lsp 불러오기
 
 - 같은 시트폼/도곽 블록을 반복해서 쓰는 도면일수록 정확도가 높음
 - 도면 제목, 도면번호, 스케일이 텍스트로 들어있어야 인식 가능
+- PC를 옮길 때는 TOCFORMSET 후 DWG를 저장해야 폼 위치 세팅이 같이 넘어감
 - 다른 시트에 있는 상세도나 폼 구조가 완전히 다른 도면은 수동 보정 필요
 ```
 
@@ -92,9 +100,18 @@ TOCFORMSET
 3. DWG NO 값 칸을 박스로 지정
 4. TITLE 값 칸을 박스로 지정
 5. SCALE 값 칸을 박스로 지정
+6. DWG 저장
 ```
 
 주의: 2~5번은 폼 전체가 아니라 값이 들어가는 칸만 작게 지정합니다.
+
+`TOCFORMSET`으로 잡은 폼 세팅은 현재 DWG 안에 저장됩니다. 다른 PC에서 같은 DWG를 열면 `APPLOAD` 후 `TOCFORMSCAN`으로 바로 사용할 수 있습니다.
+
+저장된 폼 세팅이 있는지 확인하려면:
+
+```text
+TOCFORMSTATUS
+```
 
 ### 2. 리스트 생성
 
@@ -149,6 +166,7 @@ TOCCFG
 
 ```text
 TOCFORMSET
+→ DWG 저장
 → TOCFORMSCAN
 → 생성된 Table 확인
 → 누락/예외 항목만 수동 보정
