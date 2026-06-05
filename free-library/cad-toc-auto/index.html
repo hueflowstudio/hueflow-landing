@@ -87,7 +87,8 @@
 
     <section class="panel">
       <h2>사용 순서</h2>
-      <pre><code>TOCFORMSET</code></pre>
+      <pre><code>HF1</code></pre>
+      <p>긴 명령어는 <code>TOCFORMSET</code>입니다. 짧게는 <code>HF1</code>만 입력하면 됩니다.</p>
       <ul>
         <li>반복되는 시트폼 블록 하나 선택</li>
         <li>SHEET NO 값 칸 지정</li>
@@ -96,7 +97,8 @@
         <li>SCALE 값 칸 지정</li>
         <li>DWG 저장</li>
       </ul>
-      <pre><code>TOCFORMSCAN</code></pre>
+      <pre><code>HF2</code></pre>
+      <p>긴 명령어는 <code>TOCFORMSCAN</code>입니다.</p>
       <p>같은 폼 블록들을 스캔해 SHEET / DWG NO / TITLE / SCALE 표를 생성합니다.</p>
     </section>
 
@@ -105,9 +107,17 @@
       <ul>
         <li><code>TOCSEMI</code>: 선택 영역의 도면 정보 텍스트를 반자동 인식</li>
         <li><code>TOCSEMIALL</code>: DWG 전체 스캔 후 기존 목차 영역 제외</li>
-        <li><code>TOCFORMSTATUS</code>: 현재 DWG에 저장된 폼 세팅 확인</li>
-        <li><code>TOCCFG</code>: 도면번호/축척 패턴과 출력 기본값 설정</li>
+        <li><code>HF0</code> / <code>TOCFORMSTATUS</code>: 현재 DWG에 저장된 폼 세팅 확인</li>
+        <li><code>HF3</code> / <code>TOCCFG</code>: 도면번호/축척 패턴과 출력 기본값 설정</li>
       </ul>
+    </section>
+
+    <section class="panel">
+      <h2>쉬운 명령어 요약</h2>
+      <pre><code>HF1 = 폼 기준 설정
+HF2 = 도면 리스트 생성
+HF0 = 현재 폼 설정 확인
+HF3 = 설정값 조정</code></pre>
     </section>
 
     <section class="panel">
